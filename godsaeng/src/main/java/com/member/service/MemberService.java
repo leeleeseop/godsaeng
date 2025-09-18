@@ -2,6 +2,7 @@ package com.member.service;
 
 
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.member.entity.Member;
@@ -14,10 +15,13 @@ import lombok.RequiredArgsConstructor;
 public class MemberService {
 
 	private final MemberRepository memberRepository;
+	private final PasswordEncoder passwordEncoder;
 	
 	// 회원가입
 	// member에 있는 회원정보를 입력해서 member에 저장
 	public Member register(Member member) {
+		// 비밀번호 암호화
+		member.setMemberPw(passwordEncoder.encode(member.getMemberPw()));
 		return memberRepository.save(member);
 	}
 	
@@ -31,8 +35,8 @@ public class MemberService {
 		}
 		
 		// 입력한 비밀번호와 원래 비밀번호랑 비교
-		if(!memberPw.equals(member.getMemberPw())) {
-			throw new RuntimeException("비밀번호가 일치하지 않습니다.");
+		if(!passwordEncoder.matches(memberPw, member.getMemberPw())) {
+		    throw new RuntimeException("비밀번호가 일치하지 않습니다.");
 		}
 		
 		return member;
